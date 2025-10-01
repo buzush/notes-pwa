@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>פתקים שלי</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f9f9f9"/>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; direction: rtl; }
+    h1 { text-align: center; }
+    #notes { margin-top: 20px; }
+    .note {
+      border: 1px solid #ccc; border-radius: 8px;
+      padding: 10px; margin-bottom: 10px;
+      background: #f9f9f9;
+    }
+    .dates { font-size: 0.8em; color: #666; }
+    textarea { width: 100%; height: 80px; }
+    button { margin-top: 5px; padding: 6px 12px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>פתקים שלי 📝</h1>
+
+  <textarea id="newNote" placeholder="כתוב כאן פתק חדש..."></textarea><br>
+  <button onclick="addNote()">הוסף פתק</button>
+
+  <div id="notes"></div>
+
+  <script>
+    let notes = JSON.parse(localStorage.getItem("notes") || "[]");
+
+    function renderNotes() {
+      const container = document.getElementById("notes");
+      container.innerHTML = "";
+      notes.forEach((note, index) => {
+        const div = document.createElement("div");
+        div.className = "note";
+        div.innerHTML = `
+          <div contenteditable="true" onblur="updateNote(${index}, this.innerText)">${note.text}</div>
+          <div class="dates">
+            נוצר: ${note.created}<br>
+            עודכן: ${note.updated}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addNote() {
+      const text = document.getElementById("newNote").value.trim();
+      if (!text) return;
+      const now = new Date().toLocaleString();
+      notes.unshift({ text, created: now, updated: now });
+      localStorage.setItem("notes", JSON.stringify(notes));
+      document.getElementById("newNote").value = "";
+      renderNotes();
+    }
+
+    function updateNote(index, newText) {
+      notes[index].text = newText;
+      notes[index].updated = new Date().toLocaleString();
+      localStorage.setItem("notes", JSON.stringify(notes));
+      renderNotes();
+    }
+
+    renderNotes();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
+</body>
+</html>
