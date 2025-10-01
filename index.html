@@ -14,6 +14,7 @@
       border: 1px solid #ccc; border-radius: 8px;
       padding: 10px; margin-bottom: 10px;
       background: #f9f9f9;
+      position: relative;
     }
     .note div[contenteditable="true"] {
       white-space: pre-wrap; /* שומר על שורות חדשות */
@@ -21,6 +22,17 @@
     .dates { font-size: 0.8em; color: #666; margin-top: 8px; }
     textarea { width: 100%; height: 80px; }
     button { margin-top: 5px; padding: 6px 12px; border-radius: 6px; }
+    .delete-btn {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -41,6 +53,7 @@
         const div = document.createElement("div");
         div.className = "note";
         div.innerHTML = `
+          <button class="delete-btn" onclick="deleteNote(${index})">מחק</button>
           <div contenteditable="true" onblur="updateNote(${index}, this.innerText)">${note.text}</div>
           <div class="dates">
             נוצר: ${note.created}<br>
@@ -66,6 +79,14 @@
       notes[index].updated = new Date().toLocaleString();
       localStorage.setItem("notes", JSON.stringify(notes));
       renderNotes();
+    }
+
+    function deleteNote(index) {
+      if (confirm("למחוק את הפתק הזה?")) {
+        notes.splice(index, 1);
+        localStorage.setItem("notes", JSON.stringify(notes));
+        renderNotes();
+      }
     }
 
     renderNotes();
